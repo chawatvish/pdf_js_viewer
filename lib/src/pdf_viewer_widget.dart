@@ -117,7 +117,7 @@ class _PDFViewerWidgetState extends State<PDFViewerWidget> {
     const maxPort = 65535;
     int randomPort = minPort + random.nextInt(maxPort - minPort + 1);
     interceptUrl =
-        'http://127.0.0.1:$randomPort/pdfjs/web/viewer.html?file=/api/intercept';
+        'http://127.0.0.1:$randomPort/pdfjs/web/viewer.html?disableAutoFetch=false&disableStream=false&file=/api/intercept';
     server = Jaguar(port: randomPort);
     _startServer();
     super.initState();

@@ -26,13 +26,21 @@ class PDFViewerWidget extends StatefulWidget {
   /// exit page to clear webView cache,default true
   final bool clearCache;
 
-  const PDFViewerWidget._({super.key, this.onControllerCreated, this.filePath, this.fileData, this.isAssets = false, this.clearCache = true})
+  const PDFViewerWidget._(
+      {super.key,
+      this.onControllerCreated,
+      this.filePath,
+      this.fileData,
+      this.isAssets = false,
+      this.clearCache = true})
       : assert(filePath != null || fileData != null);
 
   @override
   State<PDFViewerWidget> createState() => _PDFViewerWidgetState();
 
-  factory PDFViewerWidget.data(Uint8List data, {PDFViewerControllerCallback<PDFViewerController>? onControllerCreated, bool clearCache = true}) {
+  factory PDFViewerWidget.data(Uint8List data,
+      {PDFViewerControllerCallback<PDFViewerController>? onControllerCreated,
+      bool clearCache = true}) {
     return PDFViewerWidget._(
       fileData: data,
       clearCache: clearCache,
@@ -40,7 +48,9 @@ class PDFViewerWidget extends StatefulWidget {
     );
   }
 
-  factory PDFViewerWidget.network(String url, {PDFViewerControllerCallback<PDFViewerController>? onControllerCreated, bool clearCache = true}) {
+  factory PDFViewerWidget.network(String url,
+      {PDFViewerControllerCallback<PDFViewerController>? onControllerCreated,
+      bool clearCache = true}) {
     return PDFViewerWidget._(
       filePath: url,
       clearCache: clearCache,
@@ -48,7 +58,9 @@ class PDFViewerWidget extends StatefulWidget {
     );
   }
 
-  factory PDFViewerWidget.file(String absolutePath, {PDFViewerControllerCallback<PDFViewerController>? onControllerCreated, bool clearCache = true}) {
+  factory PDFViewerWidget.file(String absolutePath,
+      {PDFViewerControllerCallback<PDFViewerController>? onControllerCreated,
+      bool clearCache = true}) {
     return PDFViewerWidget._(
       filePath: absolutePath,
       clearCache: clearCache,
@@ -56,7 +68,9 @@ class PDFViewerWidget extends StatefulWidget {
     );
   }
 
-  factory PDFViewerWidget.assets(String asset, {PDFViewerControllerCallback<PDFViewerController>? onControllerCreated, bool clearCache = true}) {
+  factory PDFViewerWidget.assets(String asset,
+      {PDFViewerControllerCallback<PDFViewerController>? onControllerCreated,
+      bool clearCache = true}) {
     return PDFViewerWidget._(
       filePath: asset,
       isAssets: true,
@@ -70,7 +84,8 @@ class _PDFViewerWidgetState extends State<PDFViewerWidget> {
   late Jaguar server;
   late final WebViewController _controller = WebViewController()
     ..setJavaScriptMode(JavaScriptMode.unrestricted)
-    ..addJavaScriptChannel('FlutterPDFViewer', onMessageReceived: _onMessageReceived);
+    ..addJavaScriptChannel('FlutterPDFViewer',
+        onMessageReceived: _onMessageReceived);
 
   late final String interceptUrl;
 
@@ -87,7 +102,8 @@ class _PDFViewerWidgetState extends State<PDFViewerWidget> {
     } else if (msgMap['type'] == 'pageChanged') {
       _pdfViewerController._page = msgMap['data'] as int;
       _pdfViewerController.onPageChanged?.call(_pdfViewerController._page);
-      log('onPageChanged: ${_pdfViewerController._page}', name: 'pdf_js_viewer');
+      log('onPageChanged: ${_pdfViewerController._page}',
+          name: 'pdf_js_viewer');
     }
   }
 
@@ -100,7 +116,8 @@ class _PDFViewerWidgetState extends State<PDFViewerWidget> {
     const minPort = 10000;
     const maxPort = 65535;
     int randomPort = minPort + random.nextInt(maxPort - minPort + 1);
-    interceptUrl = 'http://127.0.0.1:$randomPort/pdfjs/web/viewer.html?file=/api/intercept';
+    interceptUrl =
+        'http://127.0.0.1:$randomPort/pdfjs/web/viewer.html?file=/api/intercept';
     server = Jaguar(port: randomPort);
     _startServer();
     super.initState();
@@ -137,15 +154,23 @@ class _PDFViewerWidgetState extends State<PDFViewerWidget> {
   }
 
   Route _serveFlutterAssets(
-      {String path = '*', bool stripPrefix = true, String prefix = '', Map<String, String>? pathRegEx, ResponseProcessor? responseProcessor}) {
+      {String path = '*',
+      bool stripPrefix = true,
+      String prefix = '',
+      Map<String, String>? pathRegEx,
+      ResponseProcessor? responseProcessor}) {
     Route route;
     int skipCount = -1;
     route = Route.get(path, (ctx) async {
       Iterable<String> segs = ctx.pathSegments;
       if (skipCount > 0) segs = segs.skip(skipCount);
 
-      String lookupPath = segs.join('/') + (ctx.path.endsWith('/') ? 'index.html' : '');
-      final body = (await rootBundle.load('packages/pdf_js_viewer/assets/$prefix$lookupPath')).buffer.asUint8List();
+      String lookupPath =
+          segs.join('/') + (ctx.path.endsWith('/') ? 'index.html' : '');
+      final body = (await rootBundle
+              .load('packages/pdf_js_viewer/assets/$prefix$lookupPath'))
+          .buffer
+          .asUint8List();
 
       String? mimeType;
       if (!ctx.path.endsWith('/')) {
@@ -169,7 +194,9 @@ class _PDFViewerWidgetState extends State<PDFViewerWidget> {
 
   @override
   void didUpdateWidget(covariant PDFViewerWidget oldWidget) {
-    if (widget.filePath != oldWidget.filePath || widget.fileData != oldWidget.fileData || widget.isAssets != oldWidget.isAssets) {
+    if (widget.filePath != oldWidget.filePath ||
+        widget.fileData != oldWidget.fileData ||
+        widget.isAssets != oldWidget.isAssets) {
       _controller.reload();
     }
     super.didUpdateWidget(oldWidget);
@@ -193,16 +220,19 @@ class _PDFViewerWidgetState extends State<PDFViewerWidget> {
   }
 
   set scrollMode(ScrollMode mode) {
-    _controller.runJavaScriptReturningResult('PDFViewerApplication.pdfViewer.scrollMode=${mode.value}');
+    _controller.runJavaScriptReturningResult(
+        'PDFViewerApplication.pdfViewer.scrollMode=${mode.value}');
   }
 
   set spreadMode(SpreadMode mode) {
-    _controller.runJavaScriptReturningResult('PDFViewerApplication.pdfViewer.spreadMode=${mode.value}');
+    _controller.runJavaScriptReturningResult(
+        'PDFViewerApplication.pdfViewer.spreadMode=${mode.value}');
   }
 
   Future<bool> jumpToPage(int page) async {
     try {
-      await _controller.runJavaScriptReturningResult('PDFViewerApplication.page=$page');
+      await _controller
+          .runJavaScriptReturningResult('PDFViewerApplication.page=$page');
       return true;
     } catch (_) {
       return false;
@@ -211,7 +241,8 @@ class _PDFViewerWidgetState extends State<PDFViewerWidget> {
 
   Future<bool> nextPage() async {
     try {
-      final res = (await _controller.runJavaScriptReturningResult('PDFViewerApplication.pdfViewer.nextPage()')) as bool;
+      final res = (await _controller.runJavaScriptReturningResult(
+          'PDFViewerApplication.pdfViewer.nextPage()')) as bool;
       return res;
     } catch (_) {
       return false;
@@ -220,7 +251,8 @@ class _PDFViewerWidgetState extends State<PDFViewerWidget> {
 
   Future<bool> previousPage() async {
     try {
-      final res = (await _controller.runJavaScriptReturningResult('PDFViewerApplication.pdfViewer.previousPage()')) as bool;
+      final res = (await _controller.runJavaScriptReturningResult(
+          'PDFViewerApplication.pdfViewer.previousPage()')) as bool;
       return res;
     } catch (_) {
       return false;
@@ -228,16 +260,19 @@ class _PDFViewerWidgetState extends State<PDFViewerWidget> {
   }
 
   set removePageBorders(bool removePageBorders) {
-    _controller.runJavaScript('window.viewer.classList.${removePageBorders ? 'add' : 'remove'}("removePageBorders");');
+    _controller.runJavaScript(
+        'window.viewer.classList.${removePageBorders ? 'add' : 'remove'}("removePageBorders");');
   }
 
   /// backgroundColor: #000000
   set backgroundColor(String backgroundColor) {
-    _controller.runJavaScript('window.viewer.style.backgroundColor="$backgroundColor";');
+    _controller.runJavaScript(
+        'window.viewer.style.backgroundColor="$backgroundColor";');
   }
 
   hiddenScrollBar(bool hidden) {
-    _controller.runJavaScript("PDFViewerApplication.pdfViewer.container.classList.${hidden ? 'add' : 'remove'}('no-scrollbar')");
+    _controller.runJavaScript(
+        "PDFViewerApplication.pdfViewer.container.classList.${hidden ? 'add' : 'remove'}('no-scrollbar')");
   }
 }
 
